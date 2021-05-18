@@ -16,13 +16,14 @@ import com.baseflow.geolocator.errors.ErrorCodes;
 import com.baseflow.geolocator.errors.PermissionUndefinedException;
 
 import java.util.*;
+import com.baseflow.geolocator.location.GeolocationManager;
 
 @SuppressWarnings("deprecation")
 public class PermissionManager
     implements io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener {
 
   private static final int PERMISSION_REQUEST_CODE = 109;
-
+  public static boolean backgroundModeSupportEnabled = false;
   @Nullable private Activity activity;
   @Nullable private ErrorCallback errorCallback;
   @Nullable private PermissionResultCallback resultCallback;
@@ -80,10 +81,13 @@ public class PermissionManager
     String permission = determineFineOrCoarse(activity);
     permissionsToRequest.add(permission);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        && PermissionUtils.hasPermissionInManifest(
-            activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-      permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+      System.out.println("Background location permission override for api >= android 10: isSupportBackgroundLocation " + backgroundModeSupportEnabled);
+      if(backgroundModeSupportEnabled){
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                  && PermissionUtils.hasPermissionInManifest(
+                  activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+              permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+          }
     }
 
     this.errorCallback = errorCallback;
